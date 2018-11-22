@@ -1,0 +1,234 @@
+---
+title: "High dimensional tours in dataspace"
+author: Nicholas Spyrison
+date: "November 2018"
+output:
+  xaringan::moon_reader:
+    css: ["default","pres_format.css"]
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      self_contained: true
+      countIncrementalSlides: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  eval       = TRUE,   #R code 
+  echo       = FALSE,  #code
+  include    = TRUE,   #plots
+  results    = "asis", #text 'markup' 'asis' 'hold' 'hide'
+  message    = FALSE,
+  warning    = FALSE,
+  error      = FALSE,
+  cache      = FALSE,
+  collapse   = TRUE,
+  comment    = "",
+  fig.height = 3,
+  fig.width  = 7,
+  fig.align  = "center"
+
+  #fig.show = "hold",
+  #strip.white = TRUE,
+)
+
+library(spinifex) #interferes with ggplot2?! load before ggplot2
+library(tourr)
+library(Rtsne)
+library(tibble)
+library(ggplot2)
+library(ggthemes)
+library(magrittr)
+#library(gridExtra)
+```
+
+
+# Overview
+
+- Touring
+- Analogy - shadow puppets
+- Typology
+- Holes tour
+- High-dim viz eco
+- Manual tours
+- Maths
+- Extending tourr
+- Going to 3D
+- r2vr
+- Unity & beyond
+
+---
+# Touring
+
+- Linear dimensionality reduction, embedding a $p$-dim data object into a $d$-dim subspace, where:
+-- $p$, dimensions (numeric variables) of the data, $x$ exsists in $R^p$
+-- $d$, dimensions of the subset embedding, $d < p, R^d$ exsists in $R^p$
+-- embeddings are [orthgonal projections (linear algebra)](https://en.wikipedia.org/wiki/Projection_(linear_algebra)#Orthogonal_projections)
+- Let $d$ = 2
+-- The linear combinations of the variables give us an orientation to project down to 2 dimensions
+-- Replcate this process for many 2-dimensional embeddings, making small changes to the linear combinations of variables
+-- Plot the embeddings gives an animation as the data rotates in $p$-space
+
+<!-- ![Reddit mascot, Snoo](./project/reddit_snoo.png) -->
+
+---
+# Analogy - shadow puppets
+
+- Suppose a bar stool is suspended in front of a light source such that only a ciclular shadow is projected.
+- If the stool is rotated, the 3-dimensional shape is quickly revealed to the observer
+- This 
+
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
+
+```{r, echo=FALSE}
+```
+- Cleaning: fix data types, filter to April, extract variables.
+
+---
+# Questions
+- 1) Do posts have weekly trends?
+- 2) Can we predict the number of comments a post will receive?
+- 3) What do comments look like?
+- 4) Can we predict the score of a comment?
+
+---
+# 1) Do posts have weekly trends?
+
+- Admittedly unweighted by count of wday (Sunday and Monday get a freebie)
+- More recent comments at a slight disadvantage, comments may not have run their course.
+```{r, echo=FALSE}
+
+```
+
+---
+# Prep for modeling
+
+```{r, fig.height=5}
+
+```
+- 2 right skewed variables
+- Thin density peak of num_comments; take a look at this
+
+---
+# num_comment density
+
+```{r, echo=FALSE}
+
+```
+
+- In good company at 0, mean = 5, >70% at 10 comments
+- It looks like the 0 comment posts are almost uniquely is_OC = FALSE, will comment on this later
+
+---
+# 2) Can we predict the number of comments a post will receive?
+
+- model1:   $num\_comments =  X_0 + X_1*title\_len + X_2*daysold, x_3*is\_OC$
+- Adj. r^2 is only .0054! Huge outlier, the 7k point.
+- Why the "columns"? is_OC only has 2 values! coefficient(is_OC) = 70.6, seems generous considering quantiles
+- Fanning residuals, right skewed var; what did we learn in Assignment 3? Log right skewed variables!
+
+```{r, echo = FALSE}
+
+```
+
+---
+# 2) Can we predict the number of comments a post will receive?
+
+- Best linear model:   $log(num\_comments) =  X_0 + X_1*is\_OC$
+- Ended up removing daysold and log(title_len) (giving a slight boost to adj r^2)
+- adj r^2 = .161. gained over 29x, by logging num_comments! (Only 13x gain if we had removed the 7k point)
+- Interpretation: "The presence (or absence) of self tagging 'OC' can explain 16.1% of the variation of (log) number of comments"!
+
+```{r, echo = FALSE}
+
+
+```
+
+---
+# Comment data 
+
+- Comment data about 1 April 2018 post to /r/DataIsBeautiful
+- Pulled via *RedditExtractoR* package, Reddit API (09 May 2018)
+- 495 observations, 22 columns after cleaning. API Limit: 500 comments
+- First look at a simpler example
+- Note structure, comment variables
+
+```{r, echo=FALSE}
+
+```
+
+---
+# 3) What do comments look like?
+
+- This is only 33 comments, get prohibitively busy quickly
+- Would be interesting to see user networks
+
+```{r, echo=FALSE, fig.height=6}
+
+```
+
+---
+# Clean data, subset
+
+- Cleaning: fix data types, extract variables.
+```{r, echo=FALSE, fig.height=5}
+
+```
+- Will log comment_score and comment_len right away
+- Only comments from the first 2 days
+
+---
+# 4) Can we predict the score of a comment?
+
+- Best linear model:   $log(comments\_score) =  X_0 + X_1*postdaysold$
+- Only 1 variable again, though intercept is highly significant here
+- Negative slope; comment early for a higher score
+- adj r^2 = .224
+- (Log) comment_score is best described by a variable that is limited by the API.
+- Interpretation: "Commenting on the first (vs second) day of a post can explain 22.4% of the variation of the (log) score of the comment"
+
+```{r, echo=FALSE}
+
+```
+
+---
+# Summary
+- 1) Do posts have weekly trends?
+    - Weekends, Wednesday have the least posts, OC posts might be more resistant
+- 2) Can we predict the number of comments a post will receive?
+    - The presence (or absence) of self tagging 'OC' can explain 16.1% of the variation in (log) number of comments.
+- 3) What do comments look like?
+    - We can visualize them in a tree structure
+- 4) Can we predict the score of a comment?
+    - Commenting on the first (vs second) day of a post can explain 22.4% of the variation of the (log) score of the comment.
+
+---
+# Going further
+
+- Text analysis of post titles, comments
+- Network of comments
+- Joins
+    - Join comments$post_score back to links.
+    - self-join the number of times each user comments on the post.
+- cross sectional study to a more popular subreddit (can we get away from 0 comments/ 0 scores?)
+- Obviuous API limitations
+    - Timestamps
+    - comments >= 2 post days old 
+    - max links = 1000
+    - max comments = 500
+- validations of API calls (is there bias on old and new posts/comments?)
+
+---
+# Reference:
+- Ivan Rivera (2015). RedditExtractoR: Reddit Data Extraction Toolkit. R package version 2.0.2.
+https://CRAN.R-project.org/package=RedditExtractoR
+- R Core Team (2018). R: A language and environment for statistical computing. R Foundation for
+Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+- Data Is Beautiful subreddit. (2018, April) retrieved from https://www.reddit.com/r/dataisbeautiful/.
+- R Packages used: broom, GGally, ggplot2, knitr, lubridate, RedditExtractoR, visdat, xaringan

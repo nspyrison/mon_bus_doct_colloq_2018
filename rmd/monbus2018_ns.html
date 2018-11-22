@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>High dimensional tours in dataspace</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Nicholas Spyrison" />
+    <link href="monbus2018_ns_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="pres_format.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# High dimensional tours in dataspace
+### Nicholas Spyrison
+### November 2018
+
+---
+
+
+
+
+
+
+# Overview
+
+- Touring
+- Analogy - shadow puppets
+- Typology
+- Holes tour
+- High-dim viz eco
+- Manual tours
+- Maths
+- Extending tourr
+- Going to 3D
+- r2vr
+- Unity &amp; beyond
+
+---
+# Touring
+
+- Linear dimensionality reduction, embedding a `\(p\)`-dim data object into a `\(d\)`-dim subspace, where:
+-- `\(p\)`, dimensions (numeric variables) of the data, `\(x\)` exsists in `\(R^p\)`
+-- `\(d\)`, dimensions of the subset embedding, `\(d &lt; p, R^d\)` exsists in `\(R^p\)`
+-- embeddings are [orthgonal projections (linear algebra)](https://en.wikipedia.org/wiki/Projection_(linear_algebra)#Orthogonal_projections)
+- Let `\(d\)` = 2
+-- The linear combinations of the variables give us an orientation to project down to 2 dimensions
+-- Replcate this process for many 2-dimensional embeddings, making small changes to the linear combinations of variables
+-- Plot the embeddings gives an animation as the data rotates in `\(p\)`-space
+
+&lt;!-- ![Reddit mascot, Snoo](./project/reddit_snoo.png) --&gt;
+
+---
+# Analogy - shadow puppets
+
+- Suppose a bar stool is suspended in front of a light source such that only a ciclular shadow is projected.
+- If the stool is rotated, the 3-dimensional shape is quickly revealed to the observer
+- This 
+
+&lt;!-- BELOW IS REMNANT FROM EXAMPLE --&gt;
+&lt;!-- BELOW IS REMNANT FROM EXAMPLE --&gt;
+&lt;!-- BELOW IS REMNANT FROM EXAMPLE --&gt;
+&lt;!-- BELOW IS REMNANT FROM EXAMPLE --&gt;
+&lt;!-- BELOW IS REMNANT FROM EXAMPLE --&gt;
+
+
+- Cleaning: fix data types, filter to April, extract variables.
+
+---
+# Questions
+- 1) Do posts have weekly trends?
+- 2) Can we predict the number of comments a post will receive?
+- 3) What do comments look like?
+- 4) Can we predict the score of a comment?
+
+---
+# 1) Do posts have weekly trends?
+
+- Admittedly unweighted by count of wday (Sunday and Monday get a freebie)
+- More recent comments at a slight disadvantage, comments may not have run their course.
+
+
+---
+# Prep for modeling
+
+
+- 2 right skewed variables
+- Thin density peak of num_comments; take a look at this
+
+---
+# num_comment density
+
+
+
+- In good company at 0, mean = 5, &gt;70% at 10 comments
+- It looks like the 0 comment posts are almost uniquely is_OC = FALSE, will comment on this later
+
+---
+# 2) Can we predict the number of comments a post will receive?
+
+- model1:   `\(num\_comments =  X_0 + X_1*title\_len + X_2*daysold, x_3*is\_OC\)`
+- Adj. r^2 is only .0054! Huge outlier, the 7k point.
+- Why the "columns"? is_OC only has 2 values! coefficient(is_OC) = 70.6, seems generous considering quantiles
+- Fanning residuals, right skewed var; what did we learn in Assignment 3? Log right skewed variables!
+
+
+
+---
+# 2) Can we predict the number of comments a post will receive?
+
+- Best linear model:   `\(log(num\_comments) =  X_0 + X_1*is\_OC\)`
+- Ended up removing daysold and log(title_len) (giving a slight boost to adj r^2)
+- adj r^2 = .161. gained over 29x, by logging num_comments! (Only 13x gain if we had removed the 7k point)
+- Interpretation: "The presence (or absence) of self tagging 'OC' can explain 16.1% of the variation of (log) number of comments"!
+
+
+
+---
+# Comment data 
+
+- Comment data about 1 April 2018 post to /r/DataIsBeautiful
+- Pulled via *RedditExtractoR* package, Reddit API (09 May 2018)
+- 495 observations, 22 columns after cleaning. API Limit: 500 comments
+- First look at a simpler example
+- Note structure, comment variables
+
+
+
+---
+# 3) What do comments look like?
+
+- This is only 33 comments, get prohibitively busy quickly
+- Would be interesting to see user networks
+
+
+
+---
+# Clean data, subset
+
+- Cleaning: fix data types, extract variables.
+
+- Will log comment_score and comment_len right away
+- Only comments from the first 2 days
+
+---
+# 4) Can we predict the score of a comment?
+
+- Best linear model:   `\(log(comments\_score) =  X_0 + X_1*postdaysold\)`
+- Only 1 variable again, though intercept is highly significant here
+- Negative slope; comment early for a higher score
+- adj r^2 = .224
+- (Log) comment_score is best described by a variable that is limited by the API.
+- Interpretation: "Commenting on the first (vs second) day of a post can explain 22.4% of the variation of the (log) score of the comment"
+
+
+
+---
+# Summary
+- 1) Do posts have weekly trends?
+    - Weekends, Wednesday have the least posts, OC posts might be more resistant
+- 2) Can we predict the number of comments a post will receive?
+    - The presence (or absence) of self tagging 'OC' can explain 16.1% of the variation in (log) number of comments.
+- 3) What do comments look like?
+    - We can visualize them in a tree structure
+- 4) Can we predict the score of a comment?
+    - Commenting on the first (vs second) day of a post can explain 22.4% of the variation of the (log) score of the comment.
+
+---
+# Going further
+
+- Text analysis of post titles, comments
+- Network of comments
+- Joins
+    - Join comments$post_score back to links.
+    - self-join the number of times each user comments on the post.
+- cross sectional study to a more popular subreddit (can we get away from 0 comments/ 0 scores?)
+- Obviuous API limitations
+    - Timestamps
+    - comments &gt;= 2 post days old 
+    - max links = 1000
+    - max comments = 500
+- validations of API calls (is there bias on old and new posts/comments?)
+
+---
+# Reference:
+- Ivan Rivera (2015). RedditExtractoR: Reddit Data Extraction Toolkit. R package version 2.0.2.
+https://CRAN.R-project.org/package=RedditExtractoR
+- R Core Team (2018). R: A language and environment for statistical computing. R Foundation for
+Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+- Data Is Beautiful subreddit. (2018, April) retrieved from https://www.reddit.com/r/dataisbeautiful/.
+- R Packages used: broom, GGally, ggplot2, knitr, lubridate, RedditExtractoR, visdat, xaringan
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"self_contained": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
