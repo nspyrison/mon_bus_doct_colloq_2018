@@ -4,7 +4,7 @@ author: Nicholas Spyrison
 date: "November 2018"
 output:
   xaringan::moon_reader:
-    css: ["default","pres_format.css"]
+    css: ["default","data_viz_theme.css"]
     self_contained: false
     nature:
       highlightStyle: github
@@ -49,7 +49,7 @@ library(magrittr)
 
 - Touring
 - Analogy - shadow puppets
-- Typology
+- Touring typology
 - Holes tour
 - High-dim viz eco
 - Manual tours
@@ -63,10 +63,10 @@ library(magrittr)
 # Touring
 
 - Linear dimensionality reduction, embedding a $p$-dim data object into a $d$-dim subspace, where:
-    - $p$, dimensions (numeric variables) of the data, $x$ exsists in $R^p$
-    - $d$, dimensions of the subset embedding, $d < p, R^d$ exsists in $R^p$
-    - embeddings are [orthgonal projections (linear algebra)](https://en.wikipedia.org/wiki/Projection_(linear_algebra)#Orthogonal_projections)
-- Let $d$ = 2
+    - $p$, dimensions (numeric variables) of the data, $x \in \mathbb{R}^p$
+    - $d$, dimensions of the subset embedding, $d \leq p, \mathbb{R}^d \in \mathbb{R}^p$
+    - embeddings are orthgonal projections (linear algebra)
+- Let $d = 2$
     - The linear combinations of the variables give us an orientation to project down to 2 dimensions
     - Replcate this process for many 2-dimensional embeddings, making small changes to the linear combinations of variables
     - Plot the embeddings gives an animation as the data rotates in $p$-space
@@ -76,26 +76,22 @@ library(magrittr)
 ---
 # Analogy - shadow puppets
 
-- Suppose a bar stool is suspended in front of a light source such that only a ciclular shadow is projected.
+- Suppose a bar stool is suspended in front of a light source such that only a ciclular shadow is projected
 - If the stool is rotated, the 3-dimensional shape is quickly revealed to the observer
-- This 
+
+![Shadow puppet analogy](./shadow_puppet.png)
+
+- This is the same visual interpretation that we want to preverve in visualizing in multivariate datasets [@Wickham]
+
 
 <!-- BELOW IS REMNANT FROM EXAMPLE -->
 <!-- BELOW IS REMNANT FROM EXAMPLE -->
 <!-- BELOW IS REMNANT FROM EXAMPLE -->
 <!-- BELOW IS REMNANT FROM EXAMPLE -->
 <!-- BELOW IS REMNANT FROM EXAMPLE -->
-
-```{r, echo=FALSE}
-```
-- Cleaning: fix data types, filter to April, extract variables.
-
 ---
-# Questions
-- 1) Do posts have weekly trends?
-- 2) Can we predict the number of comments a post will receive?
-- 3) What do comments look like?
-- 4) Can we predict the score of a comment?
+# Touring typology
+- Random
 
 ---
 # 1) Do posts have weekly trends?
