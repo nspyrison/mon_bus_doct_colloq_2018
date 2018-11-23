@@ -93,6 +93,8 @@ Random, precomputed, and data-driven implemented in R `tourr` package, available
 
 ---
 # Holes tour
+![Flea Holes Tour](./images/FleaHolesTour.gif)
+
 - 
 
 <!-- BELOW IS REMNANT FROM EXAMPLE -->
