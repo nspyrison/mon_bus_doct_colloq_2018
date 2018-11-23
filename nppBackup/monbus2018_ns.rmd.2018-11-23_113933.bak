@@ -65,7 +65,7 @@ library(magrittr)
     - embeddings are orthgonal projections (linear algebra)
 - Let $d = 2$
     - The linear combinations of the variables give us an orientation to project down to 2 dimensions
-    - Replicate this process for many 2-dimensional embeddings, making small changes to the linear combinations of variables
+    - Replcate this process for many 2-dimensional embeddings, making small changes to the linear combinations of variables
     - Plot the embeddings gives an animation as the data rotates in $p$-space
 
 <!-- ![Reddit mascot, Snoo](./project/reddit_snoo.png) -->
@@ -78,8 +78,14 @@ library(magrittr)
 
 ![Shadow puppet analogy](./images/shadow_puppet.png)
 
-- Same visual interpretation that we want to preserve in visualizing in multivariate datasets *(Wickham et. al. 2015)*
+- Same visual interpretation that we want to preverve in visualizing in multivariate datasets *(Wickham et. al. 2015)*
 
+
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
+<!-- BELOW IS REMNANT FROM EXAMPLE -->
 ---
 # Touring typology *(Buja et. al. 2004)*
 - Random choice - "grand tour" random forest walk in $p$-space *(Asimov 1985)*
@@ -87,17 +93,19 @@ library(magrittr)
 - Data driven - "guided tour" stochastic gradent descent on objective function *(Hurley and Buja 1990)*
 - Manual choice - "manual tour" selecting a variable and manipulation *(Cook and Buja 1996)*
     - R implementation via the package `spinifex`, available on github
-
-<br><br><br>
+    
+    <br><br><br>
 Random, precomputed, and data-driven implemented in R `tourr` package, available on CRAN *(Wickham et. al. 2011)*
 
 ---
 # Holes tour
-- 
 
-<!-- BELOW IS REMNANT FROM EXAMPLE -->
-<!-- BELOW IS REMNANT FROM EXAMPLE -->
-<!-- BELOW IS REMNANT FROM EXAMPLE -->
+- Admittedly unweighted by count of wday (Sunday and Monday get a freebie)
+- More recent comments at a slight disadvantage, comments may not have run their course.
+```{r, echo=FALSE}
+
+```
+
 ---
 # Prep for modeling
 
