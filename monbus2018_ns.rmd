@@ -1,6 +1,6 @@
 ---
 title: "High dimensional tours in dataspace"
-author: "<br><br> Nicholas Spyrison <br><br> Monash University<br><br>"
+author: "<br> Nicholas Spyrison <br><br> Monash University<br><br>"
 date: "Monash Business School Doctoral Colloquium <br><br> November 2018 <br><br><br> *Slides: [github -- nspyrison/mon_bus_doct_colloq_2018](https://github.com/nspyrison/mon_bus_doct_colloq_2018)*"
 output:
   xaringan::moon_reader:
@@ -12,7 +12,7 @@ output:
       countIncrementalSlides: false
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE,}
 knitr::opts_chunk$set(
   eval       = TRUE,   # R code 
   echo       = FALSE,  # code
@@ -30,17 +30,16 @@ knitr::opts_chunk$set(
   #fig.show = "hold",
   #strip.white = TRUE,
 )
-
-# library(spinifex) #interferes with ggplot2?! load before ggplot2
-# library(tourr)
-# library(Rtsne)
-# library(tibble)
-# library(ggplot2)
-# library(ggthemes)
-# library(magrittr)
-# #library(gridExtra)
+#<!-- ![Reddit mascot, Snoo](./project/reddit_snoo.png) -->
+#
+#<!-- <img src="./images/FleaHolesTour.gif"  -->
+#<!-- height="400px" width="400px" align="center" /div> -->
+#
+#<!-- # ```{r, results="hold", out.width = "50%"} -->
+#<!-- # knitr::include_graphics("./images/FleaHolesTour_density2d.gif") -->
+#<!-- # ``` -->
 ```
-<!-- ![Reddit mascot, Snoo](./project/reddit_snoo.png) -->
+
 
 # Overview
 
@@ -48,21 +47,22 @@ knitr::opts_chunk$set(
 - Analogy
 - Touring typology
 - Hole tour
-- Manual tours (3 slides)
-- Refrences
+- Manual tours
+- Manual tour example
+- References
 - Appendix
 
 ---
 # Touring
 
-- Linear dimensionality reduction, embedding a $p$-dim data object into a $d$-dim subspace, where:
-    - $p$, dimensions (numeric variables) of the data, $x \in \mathbb{R}^p$
-    - $d$, dimensions of the subset embedding, $d \leq p, \mathbb{R}^d \in \mathbb{R}^p$
-    - embeddings are orthgonal projections (linear algebra)
-- Let $d = 2$
-    - The linear combinations of the variables give us an orientation to project down to 2 dimensions
-    - Replicate this process for many 2-dimensional embeddings, making small changes to the linear combinations of variables
-    - Plot the embeddings gives an animation as the data rotates in $p$-space
+- Linear dimensionality reduction technique, where
+    - $p$-dimensional data object, $x \in \mathbb{R}^p$
+    - is embedded, via orthogonal projection, into a
+    - $d$-dimensional subspace, $d \leq p, ~~\mathbb{R}^d \in \mathbb{R}^p$
+- Replicate this process, view the embeddings as an animation as the data is effectly rotated in $p$-space
+
+<br><br>
+- Consider $d = 2$, projecting down to 2D scatterplot.
 
 ---
 # Analogy - shadow puppets
@@ -72,69 +72,106 @@ knitr::opts_chunk$set(
 
 ![Shadow puppet analogy](./images/shadow_puppet.png)
 
-- Same visual interpretation that we want to preserve in visualizing in multivariate datasets *(Wickham et. al. 2015)*
+- Same visual interpretation that we want to preserve in visualizing in multivariate data sets *(Wickham et al. 2015)*
 
 ---
 # Touring typology
 
 - Random choice - "grand tour" random forest walk in $p$-space *(Asimov 1985)*
-- Precomputed choice - eg. "little tour" step through increments of all variables in order *(McDonald 1982)*
-- Data driven - "guided tour" stochastic gradent descent on objective function *(Hurley & Buja 1990)*
+- Precomputed choice - *eg.* "little tour" step through increments of all variables in order *(McDonald 1982)*
+- Data driven - "guided tour" stochastic gradient descent on objective function *(Hurley & Buja 1990)*
 - Manual choice - **"manual tour"** selecting a variable and manipulation *(Cook & Buja 1997)*
     - R implementation via the package `spinifex`, available on [github](https://github.com/nspyrison/spinifex)
     `devtools::install_github("nspyrison/spinifex")`
 
 <br>
 For more detail see Buja et al. 2005
+
 <br>
-Random, precomputed, and data-driven implemented in R `tourr` package, available on CRAN *(Wickham et. al. 2011)*
+Random, precomputed, and data-driven implemented in R `tourr` package, available on CRAN *(Wickham et al. 2011)*
 
 ---
 # Holes tour
 
 Example of a guided tour from `tourr`:
 
-<img src="./images/FleaHolesTour.gif" height="400px" width="400px" /div>
+<img src="./images/FleaHolesTour.gif" 
+height="400px" width="400px" align="center" /div>
 
 ---
 # Manual Tours (1/3)
 
 As described by Cook & Buja in 1997:
 
-- Data, $x_{[n, p]}$, where $n$ is observations, $p$ is numeric variables (a dimension)
-    - For ease of comuptation, we'll set this aside
-- Basis, $b_{[p, d]}$, an orthonormal matrix mapping the linnear combinations of $p$ dimensions down to $d$ dimensional space. Essentially the angle the projector hits the $p$-dim data
-- Choose a manip variable, $k$
-- Let $e_{[p, 1]}, be a zero column vector with the $k$-th element set to 1
-- Let manipulation space, $m_{[p, d+1]} = b||e$
+- Data, $x_{[n,~p]}$
+    - $n$ is observations
+    - $p$ is numeric variables (dimensions)
+    - For ease of computation, we'll set this aside
+- Basis, $b_{[p,~d]}$, an orthonormal matrix, the linear combinations of $p$ dimensions down to $d$-dimensional space. Essentially the orientation of the data and how it maps to $d$ dimensions 
+- We need to add a dimension in order to rotate the basis outside of the $d$-plane
+    - Choose a manipulation variable, $k$
+    - $e_{[p,~1]}$, be a zero column vector with the $k$-th element set to 1
+    - manipulation space, $m_{[p,~d+1]} = orthonormalize(b||e)$
+    
+---
+# TMP
+
+$$
+	\begin{equation}
+		=~Orthonormalise(
+		\left[
+		\left[
+		\begin{matrix}
+			b_{1,x} & b_{1,y}\\
+			b_{2,x} & b_{2,y}\\
+			\vdots  & \vdots \\
+			b_{k,x} & b_{k,y}\\
+			\vdots  & \vdots \\
+			b_{p,x} & b_{p,y}
+		\end{matrix}
+		\right]
+		||
+		\left[
+		\begin{matrix}
+			e_1~=~0\\
+			e_2~=~0\\
+			\vdots\\
+			e_k~=~1\\
+			\vdots\\
+			e_p~=~0\\
+		\end{matrix}
+		\right]
+		\right]	
+		)
+	\end{equation}
+$$
 
 ---
 # Manual Tours (2/3)
 
-- Let rotation matrix, $r_{[d+1, d+1]}$, where:
+- Let rotation matrix, $r_{[d+1,~d+1](\theta,~\phi)}$, where
     - $\theta$ is the angle of rotation within the basis plane
     - $\phi$ is the angle of rotation out of the basis plane
-    - If $d = 2$, then $r_{[3, 3]} =$
 
-$$
-\begin{matrix}
-		c_\theta^2 c_\phi + s_\theta^2 & -c_\theta s_\theta (1-c_\phi) & -c_\theta s_\phi \\ %line 1
-		-c_\theta s_\theta & s_\theta^2 c_\phi + c_\theta^2 & -s_\theta s\phi \\ %line 2
-		c_\theta s_\phi & s_\theta s_\phi & c_\phi \\ %line 3
-\end{matrix}
-$$
+<!-- $$ -->
+<!-- \begin{matrix} -->
+<!-- 		c_\theta^2 c_\phi + s_\theta^2 & -c_\theta s_\theta (1-c_\phi) & -c_\theta s_\phi \\ %line 1 -->
+<!-- 		-c_\theta s_\theta & s_\theta^2 c_\phi + c_\theta^2 & -s_\theta s\phi \\ %line 2 -->
+<!-- 		c_\theta s_\phi & s_\theta s_\phi & c_\phi \\ %line 3 -->
+<!-- \end{matrix} -->
+<!-- $$ -->
 
-- Rotate manipulation space $rm_{[p, d+1]} = m_{[p, d+1]} * r_{[d+1, d+1]}$ be a rotated manipulation space
-    - The first $d$ dimensions of $rm$ is the map to our lower dimensonial embeding (shadow)
-- Project our data $p_{[n, d+1]} = x_{[n, p]} * rm_{[p, d+1]}$
+- Rotate manipulation space $rm_{[p,~d+1]} = m_{[p,~d+1]} * r_{[d+1,~d+1]}$ be a rotated manipulation space
+    - The first $d$ dimensions of $rm$ is the map to our lower dimensional embedding (shadow)
+- Project our data $p_{[n,~d+1]} = x_{[n,~p]} * rm_{[p,~d+1]}$
 
 ---
 # Manual Tours (3/3)
 
-- One frame or slide, projecting $p$-dim data into $d$-space
-- Rinse and repeat making small changes to $\phi$, we create an animation of our $d$-dim shadow as we rotate the data
+- One frame, projecting $p$-dim data into $d$-space
+- Rinse and repeat making small changes to $\phi$, we create an animation as we control the manipulation variable
 
-```{r}
+```{r echo=TRUE}
 library(spinifex)
 data(wine) # 178 obs, 14 var.
 wine_std <- tourr::rescale(wine[, -14]) # without type of grape
@@ -142,6 +179,16 @@ rb <- tourr::basis_random(n = ncol(wine_std))
 
 (mySlideshow <- spinifex(data = wine_std, basis = rb, 
                          manip_var = 1, n_slides = 50))
+```
+
+---
+# Going further
+
+- Bring touring to VR
+- Experimental study between 2D and 3D displays
+
+```{r, results="hold", out.width = "50%"}
+knitr::include_graphics("./images/tourr2vr.PNG")
 ```
 
 ---
@@ -160,31 +207,28 @@ In order of appearance:
 - Hurley, C., & Buja, A. (1990). Analyzing High-Dimensional Data with Motion Graphics. SIAM Journal on Scientific and Statistical Computing, 11(6), 1193-1211. https://doi.org/10.1137/0911068
 - Cook, D., & Buja, A. (1997). Manual Controls for High-Dimensional Data Projections. Journal of Computational and Graphical Statistics, 6(4), 464-480. https://doi.org/10.2307/1390747
 - Wickham, H., Cook, D., Hofmann, H., & Buja, A. (2011). tourr???: An R Package for Exploring Multivariate Data with Projections. Journal of Statistical Software, 40(2). https://doi.org/10.18637/jss.v040.i02
-- R Core Team (2018). R: A language and environment for statistical computing. R Foundation for
+- R Core Team (2018). R: A language and environment for statistical
+  computing. R Foundation for Statistical Computing, Vienna, Austria. URL
+  https://www.R-project.org/.
 
 ---
-# Appendix (2/3)
+# Appendix (1/2)
 
 `tourr::animate_groupxy()`
 
-<img src="./images/FleaHolesTour_groupxy.gif" height="400px" width="400px" /div>
+```{r, results="hold", out.width = "50%"}
+knitr::include_graphics("./images/FleaHolesTour_groupxy.gif")
+```
 
 available on github: `devtools::install_github("nspyrion/tourr")`
 
 ---
-# Appendix (2/3)
-
-`tourr::animate_groupxy()`
-
-<img src="./images/FleaHolesTour_groupxy.gif" height="400px" width="400px" /div>
-
-available on github: `devtools::install_github("nspyrion/tourr")`
-
----
-# Appendix (3/3)
+# Appendix (2/2)
 
 `tourr::animate_density2d()`
 
-<img src="./images/FleaHolesTour_density2d.gif" height="400px" width="400px" /div>
+```{r, results="hold", out.width = "50%"}
+knitr::include_graphics("./images/FleaHolesTour_density2d.gif")
+```
 
 available on github: `devtools::install_github("nspyrion/tourr")`
