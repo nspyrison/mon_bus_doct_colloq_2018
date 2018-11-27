@@ -1,7 +1,7 @@
 ---
 title: "High dimensional tours in dataspace"
 author: "<br><br> Nicholas Spyrison <br><br> Monash University<br><br>"
-date: "Monash Business School Doctoral Colloquium <br><br> November 2018 <br><br><br><br> *Slides: [github](https://github.com/nspyrison/mon_bus_doct_colloq_2018)*"
+date: "Monash Business School Doctoral Colloquium <br><br> November 2018 <br><br><br> *Slides: [github -- nspyrison/mon_bus_doct_colloq_2018](https://github.com/nspyrison/mon_bus_doct_colloq_2018)*"
 output:
   xaringan::moon_reader:
     css: ["default","data_viz_theme.css"]
@@ -31,30 +31,26 @@ knitr::opts_chunk$set(
   #strip.white = TRUE,
 )
 
-library(spinifex) #interferes with ggplot2?! load before ggplot2
-library(tourr)
-library(Rtsne)
-library(tibble)
-library(ggplot2)
-library(ggthemes)
-library(magrittr)
-#library(gridExtra)
+# library(spinifex) #interferes with ggplot2?! load before ggplot2
+# library(tourr)
+# library(Rtsne)
+# library(tibble)
+# library(ggplot2)
+# library(ggthemes)
+# library(magrittr)
+# #library(gridExtra)
 ```
-
+<!-- ![Reddit mascot, Snoo](./project/reddit_snoo.png) -->
 
 # Overview
 
 - Touring
-- Analogy - shadow puppets
+- Analogy
 - Touring typology
-- Holes tour
-- High-dim viz eco
-- Manual tours
-- Maths
-- Extending tourr
-- Going to 3D
-- r2vr
-- Unity & beyond
+- Hole tour
+- Manual tours (3 slides)
+- Refrences
+- Appendix
 
 ---
 # Touring
@@ -68,8 +64,6 @@ library(magrittr)
     - Replicate this process for many 2-dimensional embeddings, making small changes to the linear combinations of variables
     - Plot the embeddings gives an animation as the data rotates in $p$-space
 
-<!-- ![Reddit mascot, Snoo](./project/reddit_snoo.png) -->
-
 ---
 # Analogy - shadow puppets
 
@@ -81,148 +75,116 @@ library(magrittr)
 - Same visual interpretation that we want to preserve in visualizing in multivariate datasets *(Wickham et. al. 2015)*
 
 ---
-# Touring typology *(Buja et. al. 2004)*
-- Random choice - "grand tour" random forest walk in $p$-space *(Asimov 1985)*
-- Precomputed choice - ie) "little tour" step through increments of all variables in order *(McDonald 1982)*
-- Data driven - "guided tour" stochastic gradent descent on objective function *(Hurley and Buja 1990)*
-- Manual choice - "manual tour" selecting a variable and manipulation *(Cook and Buja 1996)*
-    - R implementation via the package `spinifex`, available on github
+# Touring typology
 
-<br><br><br>
+- Random choice - "grand tour" random forest walk in $p$-space *(Asimov 1985)*
+- Precomputed choice - eg. "little tour" step through increments of all variables in order *(McDonald 1982)*
+- Data driven - "guided tour" stochastic gradent descent on objective function *(Hurley & Buja 1990)*
+- Manual choice - **"manual tour"** selecting a variable and manipulation *(Cook & Buja 1997)*
+    - R implementation via the package `spinifex`, available on [github](https://github.com/nspyrison/spinifex)
+    `devtools::install_github("nspyrison/spinifex")`
+
+<br>
+For more detail see Buja et al. 2005
+<br>
 Random, precomputed, and data-driven implemented in R `tourr` package, available on CRAN *(Wickham et. al. 2011)*
 
 ---
 # Holes tour
-![Flea Holes Tour](./images/FleaHolesTour.gif)
 
-- 
+Example of a guided tour from `tourr`:
 
-<!-- BELOW IS REMNANT FROM EXAMPLE -->
-<!-- BELOW IS REMNANT FROM EXAMPLE -->
-<!-- BELOW IS REMNANT FROM EXAMPLE -->
----
-# Prep for modeling
-
-```{r, fig.height=5}
-
-```
-- 2 right skewed variables
-- Thin density peak of num_comments; take a look at this
+<img src="./images/FleaHolesTour.gif" height="400px" width="400px" /div>
 
 ---
-# num_comment density
+# Manual Tours (1/3)
 
-```{r, echo=FALSE}
+As described by Cook & Buja in 1997:
 
-```
-
-- In good company at 0, mean = 5, >70% at 10 comments
-- It looks like the 0 comment posts are almost uniquely is_OC = FALSE, will comment on this later
-
----
-# 2) Can we predict the number of comments a post will receive?
-
-- model1:   $num\_comments =  X_0 + X_1*title\_len + X_2*daysold, x_3*is\_OC$
-- Adj. r^2 is only .0054! Huge outlier, the 7k point.
-- Why the "columns"? is_OC only has 2 values! coefficient(is_OC) = 70.6, seems generous considering quantiles
-- Fanning residuals, right skewed var; what did we learn in Assignment 3? Log right skewed variables!
-
-```{r, echo = FALSE}
-
-```
+- Data, $x_{[n, p]}$, where $n$ is observations, $p$ is numeric variables (a dimension)
+    - For ease of comuptation, we'll set this aside
+- Basis, $b_{[p, d]}$, an orthonormal matrix mapping the linnear combinations of $p$ dimensions down to $d$ dimensional space. Essentially the angle the projector hits the $p$-dim data
+- Choose a manip variable, $k$
+- Let $e_{[p, 1]}, be a zero column vector with the $k$-th element set to 1
+- Let manipulation space, $m_{[p, d+1]} = b||e$
 
 ---
-# 2) Can we predict the number of comments a post will receive?
+# Manual Tours (2/3)
 
-- Best linear model:   $log(num\_comments) =  X_0 + X_1*is\_OC$
-- Ended up removing daysold and log(title_len) (giving a slight boost to adj r^2)
-- adj r^2 = .161. gained over 29x, by logging num_comments! (Only 13x gain if we had removed the 7k point)
-- Interpretation: "The presence (or absence) of self tagging 'OC' can explain 16.1% of the variation of (log) number of comments"!
+- Let rotation matrix, $r_{[d+1, d+1]}$, where:
+    - $\theta$ is the angle of rotation within the basis plane
+    - $\phi$ is the angle of rotation out of the basis plane
+    - If $d = 2$, then $r_{[3, 3]} =$
 
-```{r, echo = FALSE}
+$$
+\begin{matrix}
+		c_\theta^2 c_\phi + s_\theta^2 & -c_\theta s_\theta (1-c_\phi) & -c_\theta s_\phi \\ %line 1
+		-c_\theta s_\theta & s_\theta^2 c_\phi + c_\theta^2 & -s_\theta s\phi \\ %line 2
+		c_\theta s_\phi & s_\theta s_\phi & c_\phi \\ %line 3
+\end{matrix}
+$$
 
-
-```
+- Rotate manipulation space $rm_{[p, d+1]} = m_{[p, d+1]} * r_{[d+1, d+1]}$ be a rotated manipulation space
+    - The first $d$ dimensions of $rm$ is the map to our lower dimensonial embeding (shadow)
+- Project our data $p_{[n, d+1]} = x_{[n, p]} * rm_{[p, d+1]}$
 
 ---
-# Comment data 
+# Manual Tours (3/3)
 
-- Comment data about 1 April 2018 post to /r/DataIsBeautiful
-- Pulled via *RedditExtractoR* package, Reddit API (09 May 2018)
-- 495 observations, 22 columns after cleaning. API Limit: 500 comments
-- First look at a simpler example
-- Note structure, comment variables
+- One frame or slide, projecting $p$-dim data into $d$-space
+- Rinse and repeat making small changes to $\phi$, we create an animation of our $d$-dim shadow as we rotate the data
 
-```{r, echo=FALSE}
+```{r}
+library(spinifex)
+data(wine) # 178 obs, 14 var.
+wine_std <- tourr::rescale(wine[, -14]) # without type of grape
+rb <- tourr::basis_random(n = ncol(wine_std))
 
+(mySlideshow <- spinifex(data = wine_std, basis = rb, 
+                         manip_var = 1, n_slides = 50))
 ```
 
 ---
-# 3) What do comments look like?
+# References (1/2)
 
-- This is only 33 comments, get prohibitively busy quickly
-- Would be interesting to see user networks
+In order of appearance:
 
-```{r, echo=FALSE, fig.height=6}
-
-```
-
----
-# Clean data, subset
-
-- Cleaning: fix data types, extract variables.
-```{r, echo=FALSE, fig.height=5}
-
-```
-- Will log comment_score and comment_len right away
-- Only comments from the first 2 days
+- Wickham, H., Cook, D., & Hofmann, H. (2015). Visualizing statistical models: Removing the blindfold: Visualizing Statistical Models. Statistical Analysis and Data Mining: The ASA Data Science Journal, 8(4), 203-225. https://doi.org/10.1002/sam.11271
+- Buja, A., Cook, D., Asimov, D., & Hurley, C. (2005). Computational Methods for High-Dimensional Rotations in Data Visualization. In Handbook of Statistics (Vol. 24, pp. 391-413). Elsevier. https://doi.org/10.1016/S0169-7161(04)24014-7
+- Asimov, D. (1985). The grand tour: a tool for viewing multidimensional data. SIAM Journal on Scientific and Statistical Computing, 6(1), 128-143.
+- McDonald, J. A. (1982). INTERACTIVE GRAPHICS FOR DATA ANALYSIS.
 
 ---
-# 4) Can we predict the score of a comment?
+# References (2/2)
 
-- Best linear model:   $log(comments\_score) =  X_0 + X_1*postdaysold$
-- Only 1 variable again, though intercept is highly significant here
-- Negative slope; comment early for a higher score
-- adj r^2 = .224
-- (Log) comment_score is best described by a variable that is limited by the API.
-- Interpretation: "Commenting on the first (vs second) day of a post can explain 22.4% of the variation of the (log) score of the comment"
-
-```{r, echo=FALSE}
-
-```
-
----
-# Summary
-- 1) Do posts have weekly trends?
-    - Weekends, Wednesday have the least posts, OC posts might be more resistant
-- 2) Can we predict the number of comments a post will receive?
-    - The presence (or absence) of self tagging 'OC' can explain 16.1% of the variation in (log) number of comments.
-- 3) What do comments look like?
-    - We can visualize them in a tree structure
-- 4) Can we predict the score of a comment?
-    - Commenting on the first (vs second) day of a post can explain 22.4% of the variation of the (log) score of the comment.
-
----
-# Going further
-
-- Text analysis of post titles, comments
-- Network of comments
-- Joins
-    - Join comments$post_score back to links.
-    - self-join the number of times each user comments on the post.
-- cross sectional study to a more popular subreddit (can we get away from 0 comments/ 0 scores?)
-- Obviuous API limitations
-    - Timestamps
-    - comments >= 2 post days old 
-    - max links = 1000
-    - max comments = 500
-- validations of API calls (is there bias on old and new posts/comments?)
-
----
-# Reference:
-- Ivan Rivera (2015). RedditExtractoR: Reddit Data Extraction Toolkit. R package version 2.0.2.
-https://CRAN.R-project.org/package=RedditExtractoR
+- Hurley, C., & Buja, A. (1990). Analyzing High-Dimensional Data with Motion Graphics. SIAM Journal on Scientific and Statistical Computing, 11(6), 1193-1211. https://doi.org/10.1137/0911068
+- Cook, D., & Buja, A. (1997). Manual Controls for High-Dimensional Data Projections. Journal of Computational and Graphical Statistics, 6(4), 464-480. https://doi.org/10.2307/1390747
+- Wickham, H., Cook, D., Hofmann, H., & Buja, A. (2011). tourr???: An R Package for Exploring Multivariate Data with Projections. Journal of Statistical Software, 40(2). https://doi.org/10.18637/jss.v040.i02
 - R Core Team (2018). R: A language and environment for statistical computing. R Foundation for
-Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
-- Data Is Beautiful subreddit. (2018, April) retrieved from https://www.reddit.com/r/dataisbeautiful/.
-- R Packages used: broom, GGally, ggplot2, knitr, lubridate, RedditExtractoR, visdat, xaringan
+
+---
+# Appendix (2/3)
+
+`tourr::animate_groupxy()`
+
+<img src="./images/FleaHolesTour_groupxy.gif" height="400px" width="400px" /div>
+
+available on github: `devtools::install_github("nspyrion/tourr")`
+
+---
+# Appendix (2/3)
+
+`tourr::animate_groupxy()`
+
+<img src="./images/FleaHolesTour_groupxy.gif" height="400px" width="400px" /div>
+
+available on github: `devtools::install_github("nspyrion/tourr")`
+
+---
+# Appendix (3/3)
+
+`tourr::animate_density2d()`
+
+<img src="./images/FleaHolesTour_density2d.gif" height="400px" width="400px" /div>
+
+available on github: `devtools::install_github("nspyrion/tourr")`
