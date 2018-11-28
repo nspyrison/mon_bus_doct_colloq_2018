@@ -136,7 +136,7 @@ wine_std <- tourr::rescale(wine[, -14]) # without type of grape
 rb <- tourr::basis_random(n = ncol(wine_std))
 
 mySlideshow <- spinifex(
-  data = wine_std, basis = rb, manip_var = 1, n_slides = 100)
+  data = wine_std, basis = rb, manip_var = 1, n_slides = 75)
 ```
 
 ---
