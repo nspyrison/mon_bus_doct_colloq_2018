@@ -132,19 +132,21 @@ As described in *Cook & Buja 1997*:
 ```{r echo=TRUE}
 library(spinifex)
 data(wine)
-wine_std <- tourr::rescale(wine[, -14]) # without type of grape
-rb <- tourr::basis_random(n = ncol(wine_std))
+wine_std <- tourr::rescale(wine[, -1]) # without type of grape
+rb <- basis_random(n = ncol(wine_std))
 
-mySlideshow <- spinifex(
-  data = wine_std, basis = rb, manip_var = 1, n_slides = 75)
+mySlideshow <- play_manual_tour(data = wine_std, basis = rb, manip_var = 1, 
+                                cat_var = wine$Type, axes = "bottomleft")
 ```
 
 ---
 
 # Manual tour example
 
-```{r, out.width = "80%",}
-mySlideshow
+```{r, fig.hight = 5, fig.width = 8, fig.align='center'}
+#out.width = "80%",
+play_manual_tour(data = wine_std, basis = rb, manip_var = 1, 
+                                cat_var = wine$Type, axes = "bottomleft")
 ```
 
 ---
